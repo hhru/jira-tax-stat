@@ -145,14 +145,23 @@ def process(issues, url):
 
     ctx['host'] = config.host
 
+    return ctx
+
+
+def get_html(ctx):
     return template.render(**ctx).encode('utf-8')
 
 
-with open('{}/index.html'.format(config.absolute_path), 'w') as f:
-    _filter = get_filter()
-    f.write(process(
-        issues=json_by_url(_filter[0])['issues'],
-        url=_filter[1]
-    ))
+def get_json(ctx):
+    return json.dumps(ctx['teams']).encode('utf-8')
 
+
+_filter = get_filter()
+data = process(issues=json_by_url(_filter[0])['issues'], url=_filter[1])
+
+with open('{}/index.html'.format(config.absolute_path), 'w') as f:
+    f.write(get_html(data))
+
+with open('{}/index.json'.format(config.absolute_path), 'w') as f:
+    f.write(get_json(data))
 
