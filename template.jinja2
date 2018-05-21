@@ -33,16 +33,8 @@
         <tbody>
             {% for team in teams %}
                 {% set teams_loop = loop %}
-                {% if team in ['iOS', 'Android'] %}
-                    {% set high_warning = 17 %}
-                    {% set highest_warning = 15 %}
-                {% elif team in ['TMS', 'Talantix'] %}
-                    {% set high_warning = 13 %}
-                    {% set highest_warning = 11 %}
-                {% else %}
-                    {% set high_warning = 26 %}
-                    {% set highest_warning = 24 %}
-                {% endif %}
+                {% set high_warning = 26 %}
+                {% set highest_warning = 24 %}
 
                 <tr{% if teams[team][1] <= highest_warning %} class="highest"{% elif teams[team][1] <= high_warning %} class="high"{% endif %}>
                     <td>{{team}}</td>
