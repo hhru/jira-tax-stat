@@ -109,6 +109,10 @@ dl {
     dd {
         margin-left: 0;
     }
+    dl.two-column dd {
+        float: left;
+        width: 200px;
+    }
     dd.type {
         margin-top: 1em;
         margin-bottom: 1em;
