@@ -37,6 +37,14 @@
                 {% set high_warning = 26 %}
                 {% set highest_warning = 24 %}
 
+                {% if team == 'M1' or team == 'Мобильные продукты' %}
+                    {% set high_warning = 17 %}
+                    {% set highest_warning = 15 %}
+                {% elif team == 'iOS' or team == 'Android' %}
+                    {% set high_warning = 45 %}
+                    {% set highest_warning = 42 %}
+                {% endif %}
+
                 <tr{% if teams[team][1] <= highest_warning %} class="highest"{% elif teams[team][1] <= high_warning %} class="high"{% endif %}>
                     <td>{{team}}</td>
                     {% for i in teams[team] %}
