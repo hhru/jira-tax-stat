@@ -26,6 +26,7 @@
                 <th>Team</th>
                 <th class="number">Business</th>
                 <th class="number">Tax</th>
+                <th class="secondary number">Of</th>
                 <th class="secondary number">Backend</th>
                 <th class="secondary number">Frontend</th>
                 <th class="secondary number">Dual</th>
@@ -34,26 +35,19 @@
         <tbody>
             {% for team in teams %}
                 {% set teams_loop = loop %}
-                {% set high_warning = 26 %}
-                {% set highest_warning = 24 %}
 
-                {% if team == 'M1' or team == 'Мобильные продукты' %}
-                    {% set high_warning = 17 %}
-                    {% set highest_warning = 15 %}
-                {% elif team == 'iOS' or team == 'Android' %}
-                    {% set high_warning = 45 %}
-                    {% set highest_warning = 42 %}
-                {% endif %}
-
-                <tr{% if teams[team][1] <= highest_warning %} class="highest"{% elif teams[team][1] <= high_warning %} class="high"{% endif %}>
-                    <td>{{team}}</td>
-                    {% for i in teams[team] %}
+                <tr class="{% if team.percents[1] <= team.highest_warning %}highest{% elif team.percents[1] <= team.high_warning %} high{% endif %}{% if team.name == custom_sort[0] %} delimiter{% endif %}">
+                    <td>{{team.name}}</td>
+                    {% for i in team.percents %}
                         <td class="number{% if loop.index > 2 %} secondary{% endif %}">
                             <span class="hang-wrapper">
                                 {{ i }}
                                 {% if loop.index == 1 and teams_loop.index == 1 %}<span class="hang">%</span>{% endif %}
                             </span>
                         </td>
+                        {% if loop.index == 2 %}
+                            <td class="secondary number{% if not team.is_custom_tax_percent %} default-percent{% endif %}">{{ team.tax_percent }}</td>
+                        {% endif %}
                     {% endfor %}
                 </tr>
             {% endfor %}
@@ -63,6 +57,9 @@
                 <td>Average</td>
                 {% for i in avgs %}
                     <td class="number{% if loop.index > 2 %} secondary{% endif %}">{{ i }}</td>
+                    {% if loop.index == 2 %}
+                        <td>&nbsp;</td>
+                    {% endif %}
                 {% endfor %}
             </tr>
         </tfoot>
@@ -110,23 +107,6 @@
             </dl>
         {% endfor %}
     </div>
-
-    {#
-    <hr>
-
-    <dl>
-        <dt>Backend</dt>
-        <dd>{% for i in totals[0] %}<a target="_blank" href="https://{{ host }}/browse/{{i.key}}" title="{{i.summary}}">{{i.key}}</a> {% endfor %}</dd>
-    </dl>
-    <dl>
-        <dt>Frontend</dt>
-        <dd>{% for i in totals[1] %}<a target="_blank" href="https://{{ host }}/browse/{{i.key}}" title="{{i.summary}}">{{i.key}}</a> {% endfor %}</dd>
-    </dl>
-    <dl>
-        <dt>Dual</dt>
-        <dd>{% for i in totals[2] %}<a target="_blank" href="https://{{ host }}/browse/{{i.key}}" title="{{i.summary}}">{{i.key}}</a> {% endfor %}</dd>
-    </dl>
-    #}
 
 <p><small>Favicon made by <a href="http://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></small></p>
 

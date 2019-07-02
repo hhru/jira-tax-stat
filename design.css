@@ -40,7 +40,7 @@ table {
     th, td {
         text-align: left;
         vertical-align: top;
-        padding: 6px 25px;
+        padding: 6px 15px;
     }
         th:first-child, td:first-child {
             padding-left: 15px !important;
@@ -55,7 +55,7 @@ table {
     }
 
     tfoot td {
-        border-top: 2px solid #ccc;
+        border-top: 3px solid #ccc;
         font-weight: bold;
     }
 
@@ -73,12 +73,20 @@ table {
         padding-right: 15px;
     }
 
+    td.default-percent {
+        color: #bbb;
+    }
+
     tr.high {
         background-color: #ffffe3;
     }
 
     tr.highest {
         background-color: #fdd;
+    }
+
+    tr.delimiter td {
+        border-top: 3px solid #ccc;
     }
 
 .cards-wrapper {

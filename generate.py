@@ -13,9 +13,12 @@ import config
 
 compact_issue = namedtuple('issue',
                            ('key', 'summary', 'team', 'sp', 'is_business', 'is_backend', 'is_frontend', 'is_backfront'))
-team_summary = namedtuple('summary', ('team', 'business', 'tax', 'backend', 'frontend', 'backfront'))
 
-ctx = {'time': time.strftime("%a, %d %b %Y %H:%M")}
+ctx = {
+    'time': time.strftime("%a, %d %b %Y %H:%M"),
+    'default_tax_percent': config.default_tax_percent,
+    'custom_sort': config.custom_sort,
+}
 
 template = jinja2.Environment(
     loader=jinja2.FileSystemLoader(config.absolute_path),
@@ -58,16 +61,13 @@ def compact(issue):
     return compact_issue(issue, summary, team, sp, is_business, is_backend, is_frontend, is_backfront)
 
 
-def calc_percents(team_summary):
-    total = team_summary.business + team_summary.tax
-    percent = lambda x: int(round(x / total * 100)) if total > 0 else 0
-    return percent(team_summary.business), percent(team_summary.tax), percent(team_summary.backend), percent(
-        team_summary.frontend), percent(team_summary.backfront)
-
-
 def calc_avg(teams):
     avg = lambda k: int(sum(map(lambda i: i[k], teams)) / float(len(teams)))
     return avg(0), avg(1), avg(2), avg(3), avg(4)
+
+
+def calculate_percent(sp, total_sp):
+    return int(round(sp / total_sp * 100)) if total_sp > 0 else 0
 
 
 def gen_summaries(issues_by_team):
@@ -77,6 +77,12 @@ def gen_summaries(issues_by_team):
         backend = 0
         frontend = 0
         backfront = 0
+
+        tax_percent = config.default_tax_percent
+        team = group[0]
+        if team in config.custom_tax_percent:
+            tax_percent = config.custom_tax_percent[team]
+
         for issue in group[1]:
             if issue.sp is None:
                 print 'skipped ', issue.key
@@ -86,7 +92,20 @@ def gen_summaries(issues_by_team):
             backend += issue.sp if issue.is_backend else 0
             frontend += issue.sp if issue.is_frontend else 0
             backfront += issue.sp if issue.is_backfront else 0
-        yield team_summary(group[0], business, tax, backend, frontend, backfront)
+
+        total = business + tax
+        percents = [calculate_percent(business, total), calculate_percent(tax, total),
+                    calculate_percent(backend, total), calculate_percent(frontend, total),
+                    calculate_percent(backfront, total)]
+
+        yield {
+            'name': team,
+            'percents': percents,
+            'tax_percent': tax_percent,
+            'is_custom_tax_percent': tax_percent != config.default_tax_percent,
+            'high_warning': int(round(tax_percent * 0.85)),
+            'highest_warning': int(round(tax_percent * 0.8)),
+        }
 
 
 def group_by_type(issues_by_team):
@@ -103,19 +122,6 @@ def group_by_type(issues_by_team):
     return result
 
 
-def get_totals(issues_by_team):
-    acc_backend = []
-    acc_frontend = []
-    acc_backfront = []
-
-    for group in issues_by_team:
-        acc_backend.extend(filter(lambda i: i.is_backend, group[1]))
-        acc_frontend.extend(filter(lambda i: i.is_frontend, group[1]))
-        acc_backfront.extend(filter(lambda i: i.is_backfront, group[1]))
-
-    return acc_backend, acc_frontend, acc_backfront
-
-
 def group_issues_by_team(issues):
     grouping_key = lambda i: i.team
     return [(k, list(g)) for k, g in itertools.groupby(sorted(issues, key=grouping_key), key=grouping_key)]
@@ -123,25 +129,24 @@ def group_issues_by_team(issues):
 
 def process(issues, url):
     compact_issues = map(compact, issues)
+    print 'total issues: ', len(compact_issues)
 
     compact_issues_by_team = group_issues_by_team(compact_issues)
 
     all_percents = []
 
-    ctx['teams'] = {}
-    ctx['sp_todo'] = {}
+    ctx['teams'] = []
     ctx['filter_url'] = url
 
     for team_summary in gen_summaries(compact_issues_by_team):
-        percents = calc_percents(team_summary)
-        all_percents.append(percents)
-        ctx['teams'][team_summary.team] = percents
+        all_percents.append(team_summary['percents'])
+        ctx['teams'].append(team_summary)
 
-    ctx['teams'] = OrderedDict(sorted(ctx['teams'].items()))
+    ctx['teams'] = sorted(ctx['teams'], key=lambda team: team['name'])
+    ctx['teams'] = sorted(ctx['teams'], key=lambda team: team['name'] in config.custom_sort)
     ctx['avgs'] = calc_avg(all_percents)
     ctx['details'] = group_by_type(compact_issues_by_team)
     ctx['details'] = OrderedDict(sorted(ctx['details'].items()))
-    #ctx['totals'] = get_totals(compact_issues_by_team)
 
     ctx['host'] = config.host
 
@@ -164,4 +169,3 @@ with open('{}/index.html'.format(config.absolute_path), 'w') as f:
 
 with open('{}/index.json'.format(config.absolute_path), 'w') as f:
     f.write(get_json(data))
-
