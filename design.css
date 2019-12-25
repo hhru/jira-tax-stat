@@ -1,13 +1,13 @@
 body {
     font-family: 'PT Sans', 'Trebuchet MS', sans-serif;
-    font-size: 16px;
-    padding: .5em 30px;
+    font-size: 15px;
+    padding: .25em 30px;
     color: #111;
     margin: 0;
 }
     @media (max-width: 640px) {
         body {
-            padding: .25em 15px;
+            padding: .125em 15px;
         }
     }
 
@@ -29,18 +29,22 @@ a:active, a:focus {
 
 .table-wrapper {
     overflow: auto;
-    margin: 0 -15px 2em;
+    margin: 0 30px 10px -15px;
     -webkit-overflow-scrolling: touch;
+    display: inline-block;
+    vertical-align: top;
 }
 
 table {
     border: 0;
+    border-top: 1px solid #ccc;
     border-collapse: collapse;
+    display: inline-table;
 }
     th, td {
         text-align: left;
         vertical-align: top;
-        padding: 6px 15px;
+        padding: 5px 15px;
     }
         th:first-child, td:first-child {
             padding-left: 15px !important;
@@ -49,43 +53,27 @@ table {
             padding-right: 15px !important;
         }
 
-    th {
-        border-bottom: 3px solid #ccc;
-        min-width: 3em;
-    }
-
-    tfoot td {
-        border-top: 3px solid #ccc;
-        font-weight: bold;
-    }
-
-    tbody td {
+    td {
         border-bottom: 1px solid #ccc;
     }
 
-    th.number, td.number {
+    td.number {
         text-align: right;
     }
 
-    th.secondary, td.secondary {
-        color: #777;
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-
-    td.default-percent {
-        color: #bbb;
-    }
-
-    tr.high {
+    .warning-major {
         background-color: #ffffe3;
     }
 
-    tr.highest {
+    .warning-critical {
         background-color: #fdd;
     }
 
-    tr.delimiter td {
+    .warning-blocker {
+        background-color: #faa;
+    }
+
+    tbody.delimiter:not(:first-child) tr:first-child td {
         border-top: 3px solid #ccc;
     }
 
@@ -127,12 +115,4 @@ dl {
         font-size: .8em;
         margin-bottom: 1em;
         line-height: 1.15em;
-    }
-
-.hang-wrapper {
-    position: relative;
-}
-    .hang {
-        position: absolute;
-        left: 100%;
     }

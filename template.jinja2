@@ -19,51 +19,32 @@
             <a href="2018.html">2018</a>
         </small>
     </p>
-    <div class="table-wrapper">
-    <table>
-        <thead>
-            <tr>
-                <th>Team</th>
-                <th class="number">Business</th>
-                <th class="number">Tax</th>
-                <th class="secondary number">Of</th>
-                <th class="secondary number">Backend</th>
-                <th class="secondary number">Frontend</th>
-                <th class="secondary number">Dual</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for team in teams %}
-                {% set teams_loop = loop %}
+    <div class="tables">
+        {% for group_name, group_teams in teams_groups.iteritems() %}
+            <div class="table-wrapper">
+                <table>
+                    <tbody class="delimiter">
+                        {% for team in group_teams %}
+                            {% set teams_loop = loop %}
 
-                <tr class="{% if team.percents[1] <= team.highest_warning %}highest{% elif team.percents[1] <= team.high_warning %} high{% endif %}{% if team.name == custom_sort[0] %} delimiter{% endif %}">
-                    <td>{{team.name}}</td>
-                    {% for i in team.percents %}
-                        <td class="number{% if loop.index > 2 %} secondary{% endif %}">
-                            <span class="hang-wrapper">
-                                {{ i }}
-                                {% if loop.index == 1 and teams_loop.index == 1 %}<span class="hang">%</span>{% endif %}
-                            </span>
-                        </td>
-                        {% if loop.index == 2 %}
-                            <td class="secondary number{% if not team.is_custom_tax_percent %} default-percent{% endif %}">{{ team.tax_percent }}</td>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-        </tbody>
-        <tfoot>
-            <tr>
-                <td>Average</td>
-                {% for i in avgs %}
-                    <td class="number{% if loop.index > 2 %} secondary{% endif %}">{{ i }}</td>
-                    {% if loop.index == 2 %}
-                        <td>&nbsp;</td>
-                    {% endif %}
-                {% endfor %}
-            </tr>
-        </tfoot>
-    </table>
+                            <tr{% if team.warning_level %} class="warning-{{ team.warning_level }}"{% endif %}>
+                                <td>
+                                    {{team.name}}
+                                    {% if team.is_custom_tax_percent %} (налог {{ team.tax_percent }}%){% endif %}
+                                </td>
+                                <td class="number" title="back: {{ team.percent_backend }}, front: {{ team.percent_frontend }}, dual: {{ team.percent_dual }}">{{ team.percent_tax }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="about">
+        <p>Число в таблице — процент техналога команды с начала года. Каждая команда должна 30% своего времени тратить на техналог (если не указано иное в таблице в скобках после названия команды).</p>
+        <p>Формула расчёта: (сумма Story Points портфелей команды с меткой tax) разделить на (сумму Story Points всех портфелей команды).</p>
+        <p>Не забывайте проставлять метку tax и метки backend/frontend для всех техналожных портфелей.</p>
     </div>
 
     <div class="cards-wrapper">
